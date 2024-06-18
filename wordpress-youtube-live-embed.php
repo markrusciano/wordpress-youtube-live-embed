@@ -29,6 +29,9 @@ add_action('wp_enqueue_scripts', 'yle_enqueue_scripts');
 function yle_get_video_id() {
     $channel_id = $_POST['channel_id'];
     $autoplay = $_POST['autoplay'];
+    $video_width = $_POST['video_width'];
+    $video_height = $_POST['video_height'];
+
     $api_key = defined('YOUTUBE_LIVESTREAM_API_KEY') ? YOUTUBE_LIVESTREAM_API_KEY : get_option('yle_api_key', '');
     
         if (!$api_key) {
@@ -63,7 +66,7 @@ function yle_get_video_id() {
     if (!$maintenance_message) {
         $embed_code = <<<EMBEDCODE
         <div class="embedyt-container">
-        <iframe width='100%' height='auto' src='https://www.youtube.com/embed/{$video_id}?autoplay={$autoplay}' frameborder='0' allowfullscreen></iframe>
+        <iframe width='{$video_width}' height='{$video_height}' src='https://www.youtube.com/embed/{$video_id}?autoplay={$autoplay}' frameborder='0' allowfullscreen></iframe>
         </div>
         EMBEDCODE;
         echo $embed_code;
@@ -79,11 +82,14 @@ add_action('wp_ajax_nopriv_yle_get_video_id', 'yle_get_video_id');
 function youtube_livestream_embed($atts) {
     $channel_id = $atts['channel_id'];
     $autoplay = isset($atts['autoplay']) && strtolower($atts['autoplay']) === 'true' ? '1&mute=1' : 0;
+    $video_height = $atts['video_height'];
+    $video_width = $atts['video_width'];
+
     wp_register_style( 'yle-style', plugins_url( '/css/style.css', __FILE__ ), array(), WP_YLE_VERSION, 'all' );
     wp_enqueue_style( 'yle-style' );
 
     // Return a placeholder with data attributes
-    return "<div class='youtube-livestream' data-channel-id='{$channel_id}' data-autoplay='{$autoplay}'</div>";
+    return "<div class='youtube-livestream' data-channel-id='{$channel_id}' data-autoplay='{$autoplay}' data-video-height='{$video_height}' data-video-width='{$video_width}'</div>";
 }
 add_shortcode('youtube_livestream', 'youtube_livestream_embed');
 
